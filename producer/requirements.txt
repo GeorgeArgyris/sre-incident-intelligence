@@ -1,0 +1,3 @@
+confluent-kafka==2.14.0
+Faker==40.15.0
+python-dotenv==1.2.2
