@@ -8,7 +8,16 @@ load_dotenv("../.env")
 
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
+SEVERITY_MAP = {
+    "p1": "CRITICAL",
+    "p2": "HIGH", 
+    "p3": "MEDIUM",
+    "p4": "LOW",
+}
+
 def enrich_incident(incident: dict) -> EnrichedIncident:
+    incident["severity"] = SEVERITY_MAP.get(incident["severity"].lower(), incident["severity"])
+
     prompt = f"""
 You are an SRE expert. Analyze this incident and respond ONLY with valid JSON, no extra text.
 
