@@ -1,7 +1,25 @@
-.env
+# Environments
+.venv/
+venv/
+ENV/
+env/
+# This catches any folder named venv inside any subdirectory
+**/venv/
+**/.venv/
+
+# Python artifacts
 __pycache__/
 *.pyc
-.venv/
+*.pyo
+*.pyd
 *.egg-info/
+.pytest_cache/
+
+# Local configuration
+.env
+.env.*
+!.env.example
+
+# OS generated files
 .DS_Store
-api/venv/
+Thumbs.db

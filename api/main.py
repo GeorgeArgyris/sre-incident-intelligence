@@ -7,35 +7,12 @@ from datetime import datetime, timezone
 
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
+from connection_manager import manager
 
 from db import fetch_recent_incidents, fetch_incident_by_id, fetch_stats
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
 log = logging.getLogger(__name__)
-
-class ConnectionManager:
-    def __init__(self):
-        self.active: list[WebSocket] = []
-
-    async def connect(self, websocket: WebSocket):
-        await websocket.accept()
-        self.active.append(websocket)
-
-    def disconnect(self, websocket: WebSocket):
-        if websocket in self.active:
-            self.active.remove(websocket)
-
-    async def broadcast(self, message: str):
-        dead = []
-        for ws in self.active:
-            try:
-                await ws.send_text(message)
-            except Exception:
-                dead.append(ws)
-        for ws in dead:
-            self.active.remove(ws)
-
-manager = ConnectionManager()
 
 async def poll_loop():
     interval = int(os.getenv("POLL_INTERVAL_SECONDS", "5"))
