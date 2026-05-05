@@ -22,3 +22,5 @@ class ConnectionManager:
                 dead.append(ws)
         for ws in dead:
             self.active.remove(ws)
+
+manager = ConnectionManager()

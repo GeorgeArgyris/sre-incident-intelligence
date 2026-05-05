@@ -1,6 +1,9 @@
 import { useState, useEffect, useRef } from "react"
 import "./App.css"
 
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
+const WS_BASE_URL = import.meta.env.VITE_WS_URL || "ws://127.0.0.1:8000";
+
 const SEVERITY_STYLES = {
   CRITICAL: { bg: "#3b0a0a", border: "#ef4444", badge: "#ef4444", text: "#fca5a5" },
   HIGH:     { bg: "#3b1f0a", border: "#f97316", badge: "#f97316", text: "#fdba74" },
@@ -108,7 +111,7 @@ export default function App() {
   // fetch stats every 15 seconds
   useEffect(() => {
     const fetchStats = () =>
-      fetch("http://127.0.0.1:8000/stats")
+      fetch(`${API_BASE_URL}/stats`)
         .then(r => r.json())
         .then(setStats)
         .catch(console.error)
@@ -121,7 +124,7 @@ export default function App() {
   // websocket — live incident feed
   useEffect(() => {
     function connect() {
-      const ws = new WebSocket("ws://127.0.0.1:8000/ws/incidents")
+      const ws = new WebSocket(`${WS_BASE_URL}/ws/incidents`)
       wsRef.current = ws
 
       ws.onopen = () => setConnected(true)
