@@ -102,6 +102,8 @@ function IncidentCard({ incident }) {
   )
 }
 
+console.log("WS_BASE_URL =", WS_BASE_URL)
+
 export default function App() {
   const [incidents, setIncidents] = useState([])
   const [stats, setStats] = useState(null)
