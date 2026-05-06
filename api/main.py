@@ -41,10 +41,7 @@ app = FastAPI(title="SRE Incident Intelligence API", version="1.0.0", lifespan=l
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:5173", # Local Vite dev
-        "https://sre-incident-intelligence-8a0xc5j63-georgeargyris-projectsvercel.app" # Your new Vercel URL
-    ],
+    allow_origin_regex=r"https://sre-incident-intelligence.*\.vercel\.app",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
