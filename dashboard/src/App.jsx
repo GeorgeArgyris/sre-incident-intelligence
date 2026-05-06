@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react"
 import "./App.css"
+import "./index.css"
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
 const WS_BASE_URL = import.meta.env.VITE_WS_URL || "ws://127.0.0.1:8000";
@@ -28,6 +29,10 @@ function StatCard({ label, value, color }) {
     </div>
   )
 }
+
+<div className="bg-red-500 text-white p-4">
+  Tailwind v4 works
+</div>
 
 function IncidentCard({ incident }) {
   const sev = incident.severity?.toUpperCase()
