@@ -54,10 +54,11 @@ def health():
 
 @app.get("/incidents")
 def list_incidents(
-    limit: int = Query(default=50, le=200),
+    limit: int = Query(default=10, le=200),
+    offset: int = Query(default=0, ge=0),
     severity: str | None = Query(default=None),
 ):
-    return {"incidents": fetch_recent_incidents(limit=limit, severity=severity)}
+    return {"incidents": fetch_recent_incidents(limit=limit, offset=offset, severity=severity)}
 
 @app.get("/incidents/{incident_id}")
 def get_incident(incident_id: str):

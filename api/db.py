@@ -20,7 +20,7 @@ def _get_pool():
         )
     return _pool
 
-def fetch_recent_incidents(limit: int = 50, severity: str = None) -> list[dict]:
+def fetch_recent_incidents(limit: int = 50, offset: int = 0, severity: str = None) -> list[dict]:
     pool = _get_pool()
     conn = pool.getconn()  # borrow a connection from the pool
     try:
@@ -30,14 +30,14 @@ def fetch_recent_incidents(limit: int = 50, severity: str = None) -> list[dict]:
                     SELECT * FROM incidents
                     WHERE severity = %s
                     ORDER BY created_at DESC
-                    LIMIT %s
-                """, (severity.upper(), limit))
+                    LIMIT %s OFFSET %s
+                """, (severity.upper(), limit, offset))
             else:
                 cur.execute("""
                     SELECT * FROM incidents
                     ORDER BY created_at DESC
-                    LIMIT %s
-                """, (limit,))
+                    LIMIT %s OFFSET %s
+                """, (limit, offset))
             return [dict(row) for row in cur.fetchall()]
     finally:
         pool.putconn(conn)  
