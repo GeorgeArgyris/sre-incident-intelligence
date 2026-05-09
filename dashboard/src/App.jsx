@@ -4,105 +4,73 @@ import "./App.css"
 const API_BASE_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
 const WS_BASE_URL = import.meta.env.VITE_WS_URL || "ws://127.0.0.1:8000";
 
-const SEVERITY_STYLES = {
-  CRITICAL: { bg: "#3b0a0a", border: "#ef4444", badge: "#ef4444", text: "#fca5a5" },
-  HIGH: { bg: "#3b1f0a", border: "#f97316", badge: "#f97316", text: "#fdba74" },
-  MEDIUM: { bg: "#1a2a1a", border: "#22c55e", badge: "#22c55e", text: "#86efac" },
-  LOW: { bg: "#0a1a2a", border: "#3b82f6", badge: "#3b82f6", text: "#93c5fd" },
-}
-
-const DEFAULT_STYLE = { bg: "#1a1a2a", border: "#6366f1", badge: "#6366f1", text: "#c4b5fd" }
-
-function StatCard({ label, value, color }) {
+function StatCard({ label, value, colorClass }) {
   return (
-    <div style={{
-      background: "#1e2130",
-      border: `1px solid ${color}`,
-      borderRadius: 8,
-      padding: "12px 20px",
-      minWidth: 110,
-      textAlign: "center",
-    }}>
-      <div style={{ fontSize: 28, fontWeight: 700, color }}>{value}</div>
-      <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 2, letterSpacing: "0.08em", textTransform: "uppercase" }}>{label}</div>
+    <div className="bg-slate-800/80 border border-slate-700/50 rounded-xl p-4 min-w-[120px] text-center flex-1 shadow-sm backdrop-blur-sm transition-all hover:bg-slate-800">
+      <div className={`text-3xl font-extrabold ${colorClass}`}>{value}</div>
+      <div className="text-xs font-semibold text-slate-400 mt-2 tracking-widest uppercase">{label}</div>
     </div>
   )
 }
 
 function IncidentCard({ incident }) {
   const sev = incident.severity?.toUpperCase()
-  const style = SEVERITY_STYLES[sev] || DEFAULT_STYLE
+  
+  const severityStyles = {
+    CRITICAL: { wrapper: "bg-red-950/20 border-red-500/30 hover:border-red-500/50", badge: "bg-red-500 text-white", text: "text-red-400" },
+    HIGH:     { wrapper: "bg-orange-950/20 border-orange-500/30 hover:border-orange-500/50", badge: "bg-orange-500 text-white", text: "text-orange-400" },
+    MEDIUM:   { wrapper: "bg-green-950/20 border-green-500/30 hover:border-green-500/50", badge: "bg-green-500 text-white", text: "text-green-400" },
+    LOW:      { wrapper: "bg-blue-950/20 border-blue-500/30 hover:border-blue-500/50", badge: "bg-blue-500 text-white", text: "text-blue-400" },
+  }
+  
+  const style = severityStyles[sev] || severityStyles.LOW
 
   return (
-    <div style={{
-      background: style.bg,
-      border: `1px solid ${style.border}`,
-      borderRadius: 8,
-      padding: "14px 18px",
-      display: "flex",
-      flexDirection: "column",
-      gap: 8,
-    }}>
+    <div className={`rounded-lg border p-4 flex flex-col gap-3 transition-colors duration-200 ${style.wrapper}`}>
       {/* top row */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <span style={{
-          background: style.badge,
-          color: "#fff",
-          fontSize: 10,
-          fontWeight: 700,
-          letterSpacing: "0.1em",
-          padding: "2px 8px",
-          borderRadius: 4,
-          textTransform: "uppercase",
-        }}>{sev}</span>
-        <span style={{ fontSize: 11, color: "#64748b" }}>
+      <div className="flex justify-between items-center">
+        <span className={`px-2 py-0.5 rounded text-[10px] font-bold tracking-widest uppercase shadow-sm ${style.badge}`}>
+          {sev}
+        </span>
+        <span className="text-xs font-medium text-slate-400">
           {new Date(incident.created_at).toLocaleTimeString()}
         </span>
       </div>
 
       {/* service + error */}
-      <div style={{ display: "flex", gap: 8, alignItems: "baseline" }}>
-        <span style={{ fontWeight: 600, color: style.text }}>{incident.service}</span>
-        <span style={{ color: "#64748b", fontSize: 12 }}>{incident.error_type}</span>
+      <div className="flex gap-2 items-baseline mt-1">
+        <span className="font-semibold text-slate-100 text-lg">{incident.service}</span>
+        <span className={`text-xs font-medium ${style.text}`}>{incident.error_type}</span>
       </div>
 
       {/* root cause */}
-      <div style={{ color: "#cbd5e1", fontSize: 13, lineHeight: 1.5 }}>
+      <div className="text-sm text-slate-300 leading-relaxed">
         {incident.root_cause}
       </div>
 
       {/* actions */}
       {incident.recommended_actions?.length > 0 && (
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 2 }}>
-          {incident.recommended_actions.map((a, i) => (
-            <span key={i} style={{
-              background: "#1e2130",
-              border: "1px solid #334155",
-              borderRadius: 4,
-              padding: "2px 8px",
-              fontSize: 11,
-              color: "#94a3b8",
-            }}>
-              {a}
+        <div className="flex flex-wrap gap-2 mt-1">
+          {incident.recommended_actions.map((action, i) => (
+            <span key={i} className="bg-slate-900 border border-slate-700/50 rounded-md px-2 py-1 text-xs text-slate-400">
+              {action}
             </span>
           ))}
         </div>
       )}
 
       {/* footer */}
-      <div style={{ display: "flex", gap: 16, marginTop: 4 }}>
-        <span style={{ fontSize: 11, color: "#64748b" }}>
-          Impact: <span style={{ color: "#94a3b8" }}>{incident.estimated_impact}</span>
+      <div className="flex gap-6 mt-2 pt-3 border-t border-slate-800/50">
+        <span className="text-xs text-slate-500 font-medium">
+          Impact: <span className="text-slate-300">{incident.estimated_impact}</span>
         </span>
-        <span style={{ fontSize: 11, color: "#64748b" }}>
-          ETA: <span style={{ color: "#94a3b8" }}>{incident.resolution_time_minutes}m</span>
+        <span className="text-xs text-slate-500 font-medium">
+          ETA: <span className="text-slate-300">{incident.resolution_time_minutes}m</span>
         </span>
       </div>
     </div>
   )
 }
-
-console.log("WS_BASE_URL =", WS_BASE_URL)
 
 export default function App() {
   const [incidents, setIncidents] = useState([])
@@ -110,7 +78,6 @@ export default function App() {
   const [connected, setConnected] = useState(false)
   const wsRef = useRef(null)
 
-  // fetch stats every 15 seconds
   useEffect(() => {
     const fetchStats = () =>
       fetch(`${API_BASE_URL}/stats`)
@@ -123,7 +90,6 @@ export default function App() {
     return () => clearInterval(interval)
   }, [])
 
-  // websocket — live incident feed
   useEffect(() => {
     function connect() {
       const ws = new WebSocket(`${WS_BASE_URL}/ws/incidents`)
@@ -134,16 +100,13 @@ export default function App() {
       ws.onmessage = (event) => {
         const incident = JSON.parse(event.data)
         setIncidents(prev => {
-          // avoid duplicates
           if (prev.find(i => i.incident_id === incident.incident_id)) return prev
-          // newest first, keep last 100
           return [incident, ...prev].slice(0, 100)
         })
       }
 
       ws.onclose = () => {
         setConnected(false)
-        // auto-reconnect after 3 seconds
         setTimeout(connect, 3000)
       }
 
@@ -155,68 +118,51 @@ export default function App() {
   }, [])
 
   return (
-    <div style={{ minHeight: "100vh", background: "#0f1117" }}>
-
-      {/* Tailwind Test Box */}
-      <div className="bg-gradient-to-r from-blue-500 to-purple-600 p-4 mx-6 mt-6 rounded-xl shadow-lg border border-white/20 text-center">
-        <h2 className="text-white text-xl font-bold tracking-widest">TAILWIND IS WORKING! 🎉</h2>
-        <p className="text-blue-100 text-sm mt-1">If this box is colorful, rounded, and styled, your Tailwind v4 setup is perfect.</p>
-      </div>
+    <div className="min-h-screen bg-slate-950 font-sans selection:bg-indigo-500/30 text-slate-200">
 
       {/* header */}
-      <div style={{
-        borderBottom: "1px solid #1e2130",
-        padding: "16px 24px",
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-        position: "sticky",
-        top: 0,
-        background: "#0f1117",
-        zIndex: 10,
-      }}>
+      <header className="sticky top-0 z-50 flex items-center justify-between border-b border-slate-800 bg-slate-950/80 px-6 py-4 backdrop-blur-md">
         <div>
-          <div style={{ fontWeight: 700, fontSize: 18, letterSpacing: "-0.02em" }}>
+          <h1 className="text-xl font-bold tracking-tight text-white flex items-center gap-2">
             SRE Incident Intelligence
-          </div>
-          <div style={{ fontSize: 11, color: "#64748b", marginTop: 2 }}>
-            Live enrichment pipeline
-          </div>
+          </h1>
+          <p className="text-xs font-medium text-slate-500 mt-1">Live enrichment pipeline</p>
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-          <div style={{
-            width: 8, height: 8, borderRadius: "50%",
-            background: connected ? "#22c55e" : "#ef4444",
-            boxShadow: connected ? "0 0 6px #22c55e" : "none",
-          }} />
-          <span style={{ fontSize: 12, color: connected ? "#22c55e" : "#ef4444" }}>
+        
+        <div className="flex items-center gap-2 bg-slate-900/50 px-3 py-1.5 rounded-full border border-slate-800">
+          <div className={`h-2.5 w-2.5 rounded-full ${connected ? "bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]" : "bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.6)]"}`} />
+          <span className={`text-xs font-bold uppercase tracking-wider ${connected ? "text-green-500" : "text-red-500"}`}>
             {connected ? "live" : "reconnecting..."}
           </span>
         </div>
-      </div>
+      </header>
 
-      {/* stats bar */}
-      {stats && (
-        <div style={{ padding: "16px 24px", display: "flex", gap: 12, flexWrap: "wrap" }}>
-          <StatCard label="Total" value={stats.total} color="#6366f1" />
-          <StatCard label="Critical" value={stats.critical} color="#ef4444" />
-          <StatCard label="High" value={stats.high} color="#f97316" />
-          <StatCard label="Medium" value={stats.medium} color="#22c55e" />
-          <StatCard label="Low" value={stats.low} color="#3b82f6" />
-        </div>
-      )}
+      <main className="max-w-6xl mx-auto p-6 space-y-6">
 
-      {/* incident feed */}
-      <div style={{ padding: "0 24px 24px", display: "flex", flexDirection: "column", gap: 10 }}>
-        {incidents.length === 0 && (
-          <div style={{ color: "#475569", textAlign: "center", marginTop: 60, fontSize: 14 }}>
-            Waiting for incidents...
-          </div>
+        {/* stats bar */}
+        {stats && (
+          <section className="grid grid-cols-2 md:grid-cols-5 gap-4">
+            <StatCard label="Total" value={stats.total} colorClass="text-indigo-400" />
+            <StatCard label="Critical" value={stats.critical} colorClass="text-red-500" />
+            <StatCard label="High" value={stats.high} colorClass="text-orange-500" />
+            <StatCard label="Medium" value={stats.medium} colorClass="text-green-500" />
+            <StatCard label="Low" value={stats.low} colorClass="text-blue-500" />
+          </section>
         )}
-        {incidents.map(incident => (
-          <IncidentCard key={incident.incident_id} incident={incident} />
-        ))}
-      </div>
+
+        {/* incident feed */}
+        <section className="flex flex-col gap-4 pb-12 mt-4">
+          {incidents.length === 0 && (
+            <div className="text-slate-500 text-center py-16 text-sm font-medium border border-dashed border-slate-800 rounded-xl">
+              Waiting for incidents...
+            </div>
+          )}
+          {incidents.map(incident => (
+            <IncidentCard key={incident.incident_id} incident={incident} />
+          ))}
+        </section>
+
+      </main>
 
     </div>
   )
