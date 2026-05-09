@@ -37,12 +37,29 @@ Respond with exactly this structure:
 }}
 """
 
-    response = client.chat.completions.create(
-        model="llama-3.1-8b-instant",
-        messages=[{"role": "user", "content": prompt}],
-        temperature=0.3,
-    )
+    max_retries = 3
+    base_delay = 10
 
-    raw = response.choices[0].message.content.strip()
-    data = json.loads(raw)
-    return EnrichedIncident(**data)
+    for attempt in range(max_retries):
+        try:
+            response = client.chat.completions.create(
+                model="llama-3.1-8b-instant",
+                messages=[{"role": "user", "content": prompt}],
+                temperature=0.3,
+            )
+
+            raw = response.choices[0].message.content.strip()
+            data = json.loads(raw)
+            return EnrichedIncident(**data)
+            
+        except Exception as e:
+            error_str = str(e).lower()
+            if "429" in error_str or "rate" in error_str:
+                if attempt == max_retries - 1:
+                    raise e
+                sleep_time = base_delay * (2 ** attempt)
+                print(f"Rate limited by Groq. Retrying in {sleep_time} seconds...")
+                import time
+                time.sleep(sleep_time)
+            else:
+                raise e

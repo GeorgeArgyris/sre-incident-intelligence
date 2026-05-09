@@ -7,26 +7,25 @@ from db import run_migration, save_incident
 
 load_dotenv("../.env")
 
-consumer_conf = {
-    "bootstrap.servers": os.getenv("CONFLUENT_BOOTSTRAP_SERVERS"),
-    "security.protocol": "SASL_SSL",
-    "sasl.mechanism": "PLAIN",
-    "sasl.username": os.getenv("CONFLUENT_API_KEY"),
-    "sasl.password": os.getenv("CONFLUENT_API_SECRET"),
+base_conf = {
+    "bootstrap.servers": os.getenv("CONFLUENT_BOOTSTRAP_SERVERS") or "localhost:9092"
+}
+if os.getenv("CONFLUENT_API_KEY"):
+    base_conf.update({
+        "security.protocol": "SASL_SSL",
+        "sasl.mechanism": "PLAIN",
+        "sasl.username": os.getenv("CONFLUENT_API_KEY"),
+        "sasl.password": os.getenv("CONFLUENT_API_SECRET"),
+    })
+
+consumer_conf = base_conf.copy()
+consumer_conf.update({
     "group.id": "enrichment-worker-group",
     "auto.offset.reset": "earliest",
-}
-
-dlq_conf = {
-    "bootstrap.servers": os.getenv("CONFLUENT_BOOTSTRAP_SERVERS"),
-    "security.protocol": "SASL_SSL",
-    "sasl.mechanism": "PLAIN",
-    "sasl.username": os.getenv("CONFLUENT_API_KEY"),
-    "sasl.password": os.getenv("CONFLUENT_API_SECRET"),
-}
+})
 
 consumer = Consumer(consumer_conf)
-dlq_producer = Producer(dlq_conf)
+dlq_producer = Producer(base_conf)
 
 def send_to_dlq(raw: str, reason: str):
     dlq_producer.produce(

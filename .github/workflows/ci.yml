@@ -1,0 +1,42 @@
+name: SRE Incident Intelligence Pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  test-and-validate:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Check out repository code
+      uses: actions/checkout@v4
+      
+    - name: Set up Python 3.12
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+        cache: 'pip'
+        
+    - name: Test API Microservice
+      run: |
+        cd api
+        pip install -r requirements.txt
+        pip install pytest pytest-asyncio httpx pytest-mock
+        pytest tests/ -v
+
+    - name: Test Enrichment Worker
+      run: |
+        cd enrichment-worker
+        pip install -r requirements.txt
+        pip install pytest pytest-mock
+        pytest tests/ -v
+
+    - name: Test Incident Producer
+      run: |
+        cd producer
+        pip install -r requirements.txt
+        pip install pytest
+        pytest tests/ -v

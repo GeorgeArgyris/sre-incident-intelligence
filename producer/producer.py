@@ -9,12 +9,15 @@ from incident_factory import generate_incident
 load_dotenv("../.env")
 
 conf = {
-    "bootstrap.servers": os.getenv("CONFLUENT_BOOTSTRAP_SERVERS"),
-    "security.protocol": "SASL_SSL",
-    "sasl.mechanism": "PLAIN",
-    "sasl.username": os.getenv("CONFLUENT_API_KEY"),
-    "sasl.password": os.getenv("CONFLUENT_API_SECRET"),
+    "bootstrap.servers": os.getenv("CONFLUENT_BOOTSTRAP_SERVERS") or "localhost:9092"
 }
+if os.getenv("CONFLUENT_API_KEY"):
+    conf.update({
+        "security.protocol": "SASL_SSL",
+        "sasl.mechanism": "PLAIN",
+        "sasl.username": os.getenv("CONFLUENT_API_KEY"),
+        "sasl.password": os.getenv("CONFLUENT_API_SECRET"),
+    })
 
 producer = Producer(conf)
 
@@ -36,6 +39,7 @@ if __name__ == "__main__":
             callback=delivery_report,
         )
         producer.poll(0)
-        sleep_time = random.uniform(1, 5)
+        # Deeply throttle the producer (1 incident every 20-60 secs) to protect Free-Tier LLMs seamlessly.
+        sleep_time = random.uniform(20, 60)
         print(f"Sent: {incident['incident_id']} | {incident['service']} | {incident['severity']}")
         time.sleep(sleep_time)
