@@ -24,17 +24,18 @@ def delivery_report(err, msg):
     else:
         print(f"Delivered to {msg.topic()} [{msg.partition()}] @ offset {msg.offset()}")
 
-print("Starting producer...")
+if __name__ == "__main__":
+    print("Starting producer...")
 
-while True:
-    incident = generate_incident()
-    producer.produce(
-        topic="raw-incidents",
-        key=incident["incident_id"],
-        value=json.dumps(incident),
-        callback=delivery_report,
-    )
-    producer.poll(0)
-    sleep_time = random.uniform(1, 5)
-    print(f"Sent: {incident['incident_id']} | {incident['service']} | {incident['severity']}")
-    time.sleep(sleep_time)
+    while True:
+        incident = generate_incident()
+        producer.produce(
+            topic="raw-incidents",
+            key=incident["incident_id"],
+            value=json.dumps(incident),
+            callback=delivery_report,
+        )
+        producer.poll(0)
+        sleep_time = random.uniform(1, 5)
+        print(f"Sent: {incident['incident_id']} | {incident['service']} | {incident['severity']}")
+        time.sleep(sleep_time)

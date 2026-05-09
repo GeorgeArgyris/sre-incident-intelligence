@@ -36,34 +36,35 @@ def send_to_dlq(raw: str, reason: str):
     dlq_producer.poll(0)
     print(f"Sent to DLQ: {reason}")
 
-print("Running migration...")
-run_migration()
+if __name__ == "__main__":
+    print("Running migration...")
+    run_migration()
 
-print("Starting enrichment worker...")
-consumer.subscribe(["raw-incidents"])
+    print("Starting enrichment worker...")
+    consumer.subscribe(["raw-incidents"])
 
-try:
-    while True:
-        msg = consumer.poll(1.0)
-        if msg is None:
-            continue
-        if msg.error():
-            print(f"Consumer error: {msg.error()}")
-            continue
+    try:
+        while True:
+            msg = consumer.poll(1.0)
+            if msg is None:
+                continue
+            if msg.error():
+                print(f"Consumer error: {msg.error()}")
+                continue
 
-        raw = msg.value().decode("utf-8")
-        print(f"Received: {raw[:80]}...")
+            raw = msg.value().decode("utf-8")
+            print(f"Received: {raw[:80]}...")
 
-        try:
-            incident = json.loads(raw)
-            enriched = enrich_incident(incident)
-            save_incident(enriched)
-            print(f"Saved: {enriched.incident_id} | {enriched.service} | {enriched.severity}")
-        except Exception as e:
-            print(f"Error enriching: {e}")
-            send_to_dlq(raw, str(e))
+            try:
+                incident = json.loads(raw)
+                enriched = enrich_incident(incident)
+                save_incident(enriched)
+                print(f"Saved: {enriched.incident_id} | {enriched.service} | {enriched.severity}")
+            except Exception as e:
+                print(f"Error enriching: {e}")
+                send_to_dlq(raw, str(e))
 
-except KeyboardInterrupt:
-    print("Shutting down...")
-finally:
-    consumer.close()
+    except KeyboardInterrupt:
+        print("Shutting down...")
+    finally:
+        consumer.close()
