@@ -1,11 +1,35 @@
 # 🚨 SRE Incident Intelligence Pipeline
 
-[![Live Demo](https://img.shields.io/badge/Live_Demo-Vercel-black?style=for-the-badge&logo=vercel)](https://your-vercel-deployment-link.vercel.app/)
+[![Live Demo](https://img.shields.io/badge/Live_Demo-Vercel-black?style=for-the-badge&logo=vercel)](https://sre-incident-intelligence.vercel.app/)
 [![Docker Compose](https://img.shields.io/badge/Docker-Orchestrated-blue?style=for-the-badge&logo=docker)](#-launching-locally-docker)
 [![CI/CD Pipelines](https://img.shields.io/badge/CI%2FCD-Active-brightgreen?style=for-the-badge&logo=githubactions)](#-production-deployments-cicd)
 
-> **[Insert Architecture Diagram Here]**
-> *Example: `![Architecture Diagram](./docs/architecture.png)`*
+```mermaid
+graph TD
+    classDef external fill:#f3f4f6,stroke:#374151,stroke-width:2px,color:#111827;
+    classDef broker fill:#e0e7ff,stroke:#4f46e5,stroke-width:2px,color:#111827;
+    classDef backend fill:#dcfce7,stroke:#16a34a,stroke-width:2px,color:#111827;
+    classDef database fill:#fef08a,stroke:#ca8a04,stroke-width:2px,color:#111827;
+    classDef frontend fill:#fee2e2,stroke:#dc2626,stroke-width:2px,color:#111827;
+
+    A[Python Producer]:::backend
+    B((Apache Kafka)):::broker
+    C[Enrichment Worker]:::backend
+    D{Groq Llama 3.1}:::external
+    E((Dead Letter Queue)):::broker
+    F[(PostgreSQL)]:::database
+    G[FastAPI Server]:::backend
+    H[React Dashboard]:::frontend
+
+    A -->|1. Emits Raw Alerts| B
+    B -->|2. Streams Data| C
+    C <-->|3. Analyzes Alerts| D
+    C -.->|AI Failure| E
+    C -->|4. Writes Enriched Payload| F
+    G -->|5. Background Polling| F
+    G -->|6. Real-time WebSocket| H
+    H -->|7. API Pagination| G
+```
 
 An event-driven, real-time analytics pipeline designed to ingest, process, and enrich site reliability incidents using LLMs (Large Language Models).
 
