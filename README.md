@@ -1,5 +1,12 @@
 # 🚨 SRE Incident Intelligence Pipeline
 
+[![Live Demo](https://img.shields.io/badge/Live_Demo-Vercel-black?style=for-the-badge&logo=vercel)](https://your-vercel-deployment-link.vercel.app/)
+[![Docker Compose](https://img.shields.io/badge/Docker-Orchestrated-blue?style=for-the-badge&logo=docker)](#-launching-locally-docker)
+[![CI/CD Pipelines](https://img.shields.io/badge/CI%2FCD-Active-brightgreen?style=for-the-badge&logo=githubactions)](#-production-deployments-cicd)
+
+> **[Insert Architecture Diagram Here]**
+> *Example: `![Architecture Diagram](./docs/architecture.png)`*
+
 An event-driven, real-time analytics pipeline designed to ingest, process, and enrich site reliability incidents using LLMs (Large Language Models).
 
 This project simulates a live production environment where messy, unstructured alerts are parsed securely via Groq's Llama 3.1 models and piped dynamically to a responsive React dashboard. 
