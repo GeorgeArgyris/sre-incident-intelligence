@@ -6,9 +6,9 @@ const WS_BASE_URL = import.meta.env.VITE_WS_URL || "ws://127.0.0.1:8000";
 
 const SEVERITY_STYLES = {
   CRITICAL: { bg: "#3b0a0a", border: "#ef4444", badge: "#ef4444", text: "#fca5a5" },
-  HIGH:     { bg: "#3b1f0a", border: "#f97316", badge: "#f97316", text: "#fdba74" },
-  MEDIUM:   { bg: "#1a2a1a", border: "#22c55e", badge: "#22c55e", text: "#86efac" },
-  LOW:      { bg: "#0a1a2a", border: "#3b82f6", badge: "#3b82f6", text: "#93c5fd" },
+  HIGH: { bg: "#3b1f0a", border: "#f97316", badge: "#f97316", text: "#fdba74" },
+  MEDIUM: { bg: "#1a2a1a", border: "#22c55e", badge: "#22c55e", text: "#86efac" },
+  LOW: { bg: "#0a1a2a", border: "#3b82f6", badge: "#3b82f6", text: "#93c5fd" },
 }
 
 const DEFAULT_STYLE = { bg: "#1a1a2a", border: "#6366f1", badge: "#6366f1", text: "#c4b5fd" }
@@ -156,6 +156,12 @@ export default function App() {
 
   return (
     <div style={{ minHeight: "100vh", background: "#0f1117" }}>
+
+      {/* Tailwind Test Box */}
+      <div className="bg-gradient-to-r from-blue-500 to-purple-600 p-4 mx-6 mt-6 rounded-xl shadow-lg border border-white/20 text-center">
+        <h2 className="text-white text-xl font-bold tracking-widest">TAILWIND IS WORKING! 🎉</h2>
+        <p className="text-blue-100 text-sm mt-1">If this box is colorful, rounded, and styled, your Tailwind v4 setup is perfect.</p>
+      </div>
 
       {/* header */}
       <div style={{
