@@ -7,26 +7,30 @@ echo "================================================"
 echo "    SRE Incident Intelligence - Test Suite"
 echo "================================================"
 
-echo -e "\n▶ Running API Tests..."
-cd api
-source venv/bin/activate
-pytest tests/ -v
-deactivate
-cd ..
+function run_test() {
+  local dir=$1
+  echo -e "\n▶ Running $dir Tests..."
+  cd $dir
+  
+  # Automatically create the virtualenv if it doesn't exist (like inside GitHub Actions)
+  if [ ! -d "venv" ] && [ ! -d ".venv" ]; then
+    echo "Constructing missing virtual environment for $dir..."
+    python -m venv venv
+    source venv/bin/activate
+    pip install -r requirements.txt
+    # Grab testing packages explicitly since they might not be inside prod requirements
+    pip install pytest pytest-mock pytest-asyncio httpx
+  else
+    source .venv/bin/activate 2>/dev/null || source venv/bin/activate
+  fi
+  
+  pytest tests/ -v
+  deactivate
+  cd ..
+}
 
-echo -e "\n▶ Running Enrichment Worker Tests..."
-cd enrichment-worker
-# Support either virtual env naming convention
-source .venv/bin/activate || source venv/bin/activate
-pytest tests/ -v
-deactivate
-cd ..
-
-echo -e "\n▶ Running Producer Tests..."
-cd producer
-source .venv/bin/activate || source venv/bin/activate
-pytest tests/ -v
-deactivate
-cd ..
+run_test "api"
+run_test "enrichment-worker"
+run_test "producer"
 
 echo -e "\n✅ All Python Backend Tests Passed Successfully!"

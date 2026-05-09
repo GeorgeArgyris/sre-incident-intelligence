@@ -20,23 +20,7 @@ jobs:
         python-version: '3.12'
         cache: 'pip'
         
-    - name: Test API Microservice
+    - name: Run Universal Test Script
       run: |
-        cd api
-        pip install -r requirements.txt
-        pip install pytest pytest-asyncio httpx pytest-mock
-        pytest tests/ -v
-
-    - name: Test Enrichment Worker
-      run: |
-        cd enrichment-worker
-        pip install -r requirements.txt
-        pip install pytest pytest-mock
-        pytest tests/ -v
-
-    - name: Test Incident Producer
-      run: |
-        cd producer
-        pip install -r requirements.txt
-        pip install pytest
-        pytest tests/ -v
+        chmod +x run_tests.sh
+        ./run_tests.sh
