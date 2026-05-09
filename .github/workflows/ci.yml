@@ -24,3 +24,31 @@ jobs:
       run: |
         chmod +x run_tests.sh
         ./run_tests.sh
+
+    - name: Log in to GitHub Container Registry (GHCR)
+      uses: docker/login-action@v3
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Build and Push Docker Images with Commit SHA Tags
+      run: |
+        # Docker strictly requires repository owners to be lowercase
+        OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+        
+        # Build and Push API
+        docker build -t ghcr.io/$OWNER/sre-api:${{ github.sha }} ./api
+        docker push ghcr.io/$OWNER/sre-api:${{ github.sha }}
+        
+        # Build and Push Enrichment Worker
+        docker build -t ghcr.io/$OWNER/sre-worker:${{ github.sha }} ./enrichment-worker
+        docker push ghcr.io/$OWNER/sre-worker:${{ github.sha }}
+        
+        # Build and Push Producer
+        docker build -t ghcr.io/$OWNER/sre-producer:${{ github.sha }} ./producer
+        docker push ghcr.io/$OWNER/sre-producer:${{ github.sha }}
+        
+        # Build and Push Dashboard
+        docker build -t ghcr.io/$OWNER/sre-dashboard:${{ github.sha }} ./dashboard
+        docker push ghcr.io/$OWNER/sre-dashboard:${{ github.sha }}
